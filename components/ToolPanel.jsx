@@ -39,13 +39,14 @@ export default function ToolPanel({ feature, title, blurb, fields, prepare, Prev
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)]">
-      <form onSubmit={submit} className="hud panel space-y-5 self-start p-5">
+      <form onSubmit={submit} className="panel space-y-5 self-start p-5 sm:p-6">
         <div className="flex items-start gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-signal/10 text-signal ring-1 ring-signal/30">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#e8f0e6] text-signal">
             <Icon name={ICONS[feature] || "bolt"} />
           </span>
           <div>
-            <h2 className="font-display text-lg font-semibold leading-tight">{title}</h2>
+            <p className="mb-1 text-[9px] font-bold uppercase tracking-[.15em] text-mute">YOUR INPUT</p>
+            <h2 className="font-display text-xl font-semibold leading-tight tracking-tight">{title}</h2>
             <p className="mt-1 text-sm leading-relaxed text-mute">{blurb}</p>
           </div>
         </div>
@@ -65,7 +66,7 @@ export default function ToolPanel({ feature, title, blurb, fields, prepare, Prev
 
         {Preview && <Preview values={values} />}
 
-        <div className="space-y-3 rounded-lg border border-edge bg-raised/60 p-3">
+        <div className="space-y-3 rounded-xl border border-edge bg-[#f8f8f3] p-3.5">
           <Toggle checked={safe} onChange={setSafe} label="Mask personal details (POPIA)" tag="privacy" />
           <Toggle checked={compare} onChange={setCompare} label="Compare prompt v1 vs v2" tag="lab" />
         </div>
@@ -82,25 +83,28 @@ export default function ToolPanel({ feature, title, blurb, fields, prepare, Prev
 
       <div className={`grid content-start gap-4 ${both ? "xl:grid-cols-2" : ""}`} aria-live="polite">
         {!loading && !error && Object.keys(results).length === 0 && (
-          <div className="col-span-full grid place-items-center rounded-xl border border-dashed border-edge px-6 py-16 text-center">
-            <svg viewBox="0 0 120 120" className="mb-4 h-24 w-24" fill="none" aria-hidden="true">
-              <circle cx="60" cy="60" r="52" stroke="#1F2F49" strokeWidth="1.5" strokeDasharray="3 6" />
-              <circle cx="60" cy="60" r="36" stroke="#22D3EE" strokeOpacity=".5" strokeWidth="1.5" />
-              <circle cx="60" cy="60" r="20" stroke="#22D3EE" strokeWidth="1.5" />
-              <circle cx="60" cy="60" r="4" fill="#22D3EE" />
-            </svg>
-            <p className="font-display text-base font-medium">Ready when you are</p>
-            <p className="mt-1 max-w-xs text-sm text-mute">Fill in the form and press {submitLabel.toLowerCase()}. Your result appears here.</p>
+          <div className="col-span-full grid min-h-[390px] place-items-center rounded-2xl border border-edge bg-[#fbfaf6] px-6 py-12 text-center">
+            <div className="max-w-sm">
+              <span className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-[#e8f0e6] text-signal"><Icon name={ICONS[feature] || "bolt"} className="h-6 w-6" /></span>
+              <p className="mb-2 text-[9px] font-bold uppercase tracking-[.17em] text-mute">A CLEAR START</p>
+              <p className="font-display text-2xl font-semibold tracking-tight text-fg">Your first draft starts here.</p>
+              <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-mute">Add a little context on the left and we’ll help turn it into something useful. You stay in control of the final version.</p>
+              <div className="mx-auto mt-7 grid max-w-[290px] grid-cols-3 gap-3 text-left">
+                <div className="border-t-2 border-[#c6d8c4] pt-2"><span className="text-[10px] font-bold text-signal">01</span><p className="mt-1 text-[11px] font-medium text-fg">Add details</p></div>
+                <div className="border-t-2 border-[#c6d8c4] pt-2"><span className="text-[10px] font-bold text-signal">02</span><p className="mt-1 text-[11px] font-medium text-fg">Create a draft</p></div>
+                <div className="border-t-2 border-[#c6d8c4] pt-2"><span className="text-[10px] font-bold text-signal">03</span><p className="mt-1 text-[11px] font-medium text-fg">Review & refine</p></div>
+              </div>
+            </div>
           </div>
         )}
         {loading && (
-          <div className="hud panel col-span-full space-y-3 p-5" role="status">
+          <div className="panel col-span-full space-y-3 p-5" role="status">
             <div className="skeleton h-5 w-1/3" />
             <div className="skeleton h-3 w-full" />
             <div className="skeleton h-3 w-11/12" />
             <div className="skeleton h-3 w-4/5" />
             <div className="skeleton h-3 w-2/3" />
-            <p className="pt-2 font-mono text-xs text-mute">Working on it...</p>
+            <p className="pt-2 text-xs text-mute">Putting your draft together…</p>
           </div>
         )}
         {results.v1 && <Output label="v1 basic prompt" result={results.v1} render={renderOutput && ((t) => renderOutput(t, "v1"))} />}

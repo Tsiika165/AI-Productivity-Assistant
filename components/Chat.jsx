@@ -40,12 +40,12 @@ export default function Chat({ onRun }) {
   }
 
   return (
-    <div className="hud panel mx-auto flex h-[72vh] min-h-[32rem] max-w-3xl flex-col overflow-hidden">
-      <div className="flex items-center gap-3 border-b border-edge px-5 py-3">
+    <div className="panel flex h-[68vh] min-h-[32rem] max-w-none flex-col overflow-hidden">
+      <div className="flex items-center gap-3 border-b border-edge bg-[#fbfaf6] px-5 py-3.5">
         <span className="grid h-9 w-9 place-items-center rounded-lg bg-signal/10 text-signal ring-1 ring-signal/30"><Icon name="chat" /></span>
         <div className="leading-tight">
-          <p className="font-display font-semibold">HR Desk</p>
-          <p className="flex items-center gap-1.5 font-mono text-[11px] text-mute"><span className="h-1.5 w-1.5 rounded-full bg-volt" /> online</p>
+          <p className="font-display font-semibold tracking-tight">HR Desk</p>
+          <p className="flex items-center gap-1.5 text-[11px] text-mute"><span className="h-1.5 w-1.5 rounded-full bg-volt" /> online</p>
         </div>
         <button type="button" className="btn-ghost ml-auto" onClick={() => { setMessages([]); mapRef.current = {}; }}>Clear chat</button>
       </div>
@@ -86,7 +86,7 @@ export default function Chat({ onRun }) {
         <div ref={endRef} />
       </div>
 
-      <form onSubmit={send} className="space-y-3 border-t border-edge bg-void/40 p-4">
+      <form onSubmit={send} className="space-y-3 border-t border-edge bg-[#fbfaf6] p-4">
         <div className="flex gap-2">
           <input className="field" value={text} onChange={(e) => setText(e.target.value)} placeholder="Type your question" aria-label="Message" />
           <button className="btn px-4" disabled={loading || !text.trim()} aria-label="Send"><Icon name="send" className="h-4 w-4" /> <span className="hidden sm:inline">Send</span></button>
