@@ -28,6 +28,10 @@ const MeetingSchema = z.object({
   risks: z.array(z.string()).optional().default([]),
 });
 
+const Heading = ({ children, tone = "text-signal" }) => (
+  <h4 className={`mb-2 font-mono text-[11px] font-medium uppercase tracking-widest ${tone}`}>{children}</h4>
+);
+
 function renderMeeting(text, version) {
   if (version !== "v2") return <div className="whitespace-pre-wrap text-sm leading-relaxed">{text}</div>;
   let data;
@@ -36,37 +40,46 @@ function renderMeeting(text, version) {
   } catch {
     return (
       <div className="text-sm">
-        <p className="mb-2 text-red-700">The AI reply did not match the expected structure, so it was not shown as a summary. Run it again.</p>
-        <pre className="whitespace-pre-wrap text-xs text-slate-600">{text}</pre>
+        <p className="mb-2 rounded-lg bg-red-500/10 px-3 py-2 text-red-300">The AI reply did not match the expected structure, so it was not shown as a summary. Run it again.</p>
+        <pre className="whitespace-pre-wrap font-mono text-xs text-mute">{text}</pre>
       </div>
     );
   }
-  const List = ({ title, items }) => items.length > 0 && (
-    <div><h4 className="mb-1 text-sm font-semibold">{title}</h4><ul className="list-disc space-y-0.5 pl-5 text-sm">{items.map((x, n) => <li key={n}>{x}</li>)}</ul></div>
+  const List = ({ title, items, tone }) => items.length > 0 && (
+    <div>
+      <Heading tone={tone}>{title}</Heading>
+      <ul className="space-y-1.5 text-sm">
+        {items.map((x, n) => (
+          <li key={n} className="flex gap-2.5"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-signal" />{x}</li>
+        ))}
+      </ul>
+    </div>
   );
   return (
-    <div className="space-y-4">
-      <p className="text-sm leading-relaxed">{data.summary}</p>
+    <div className="space-y-5">
+      <p className="text-[15px] leading-relaxed">{data.summary}</p>
       <List title="Key points" items={data.keyPoints} />
-      <List title="Decisions" items={data.decisions} />
+      <List title="Decisions" items={data.decisions} tone="text-volt" />
       <div>
-        <h4 className="mb-1 text-sm font-semibold">Action items</h4>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[28rem] text-left text-sm">
-            <thead className="text-xs text-slate-600"><tr><th className="py-1 pr-3">Task</th><th className="pr-3">Owner</th><th>Deadline</th></tr></thead>
+        <Heading tone="text-spark">Action items</Heading>
+        <div className="overflow-x-auto rounded-lg border border-edge">
+          <table className="w-full min-w-[26rem] text-left text-sm">
+            <thead className="bg-raised font-mono text-[11px] uppercase tracking-widest text-mute">
+              <tr><th className="px-3 py-2 font-medium">Task</th><th className="px-3 font-medium">Owner</th><th className="px-3 font-medium">Deadline</th></tr>
+            </thead>
             <tbody>
               {data.actionItems.map((a, n) => (
-                <tr key={n} className="border-t border-slate-100">
-                  <td className="py-1.5 pr-3">{a.task}</td>
-                  <td className={`pr-3 ${a.owner === "Unassigned" ? "text-flag" : ""}`}>{a.owner}</td>
-                  <td className={a.deadline === "Not specified" ? "text-flag" : ""}>{a.deadline}</td>
+                <tr key={n} className="border-t border-edge">
+                  <td className="px-3 py-2.5">{a.task}</td>
+                  <td className={`px-3 ${a.owner === "Unassigned" ? "font-medium text-flag" : ""}`}>{a.owner}</td>
+                  <td className={`px-3 font-mono text-xs ${a.deadline === "Not specified" ? "font-medium text-flag" : ""}`}>{a.deadline}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
-      <List title="Risks" items={data.risks} />
+      <List title="Risks" items={data.risks} tone="text-flag" />
     </div>
   );
 }
@@ -84,12 +97,19 @@ export function MeetingTool({ onRun }) {
 function PlannerPreview({ values }) {
   const tasks = parseTasks(values.tasks || "");
   if (tasks.length === 0) return null;
-  const colour = { "Do now": "text-red-700", Schedule: "text-signal", Delegate: "text-flag", "Defer / drop": "text-slate-500" };
+  const colour = { "Do now": "bg-red-500/15 text-red-300", Schedule: "bg-signal/15 text-signal", Delegate: "bg-flag/15 text-flag", "Defer / drop": "bg-edge text-mute" };
   return (
-    <div className="rounded-md bg-mist p-2 text-xs">
-      <p className="mb-1 font-medium">Ranked by urgency and importance (calculated here, not by AI)</p>
-      <ol className="space-y-0.5">
-        {tasks.map((t, n) => <li key={n}>{n + 1}. {t.name} <span className={`font-medium ${colour[t.quadrant]}`}>{t.quadrant}</span> ({t.hours}h)</li>)}
+    <div className="rounded-lg border border-edge bg-raised/60 p-3">
+      <p className="mb-2 font-mono text-[11px] uppercase tracking-widest text-mute">Ranked by urgency and importance (calculated here, not by AI)</p>
+      <ol className="space-y-1.5 text-xs">
+        {tasks.map((t, n) => (
+          <li key={n} className="flex items-center gap-2">
+            <span className="w-4 font-mono text-mute">{n + 1}</span>
+            <span className="min-w-0 flex-1 truncate">{t.name}</span>
+            <span className={`chip ${colour[t.quadrant]}`}>{t.quadrant}</span>
+            <span className="w-8 text-right font-mono text-mute">{t.hours}h</span>
+          </li>
+        ))}
       </ol>
     </div>
   );

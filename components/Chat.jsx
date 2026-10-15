@@ -1,7 +1,15 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { runFeature } from "@/lib/client";
 import { DISCLAIMER } from "./Output";
+import Icon from "./Icon";
+import Toggle from "./Toggle";
+
+const STARTERS = [
+  "How should I structure a probation review meeting?",
+  "Rewrite this to sound more neutral: ...",
+  "What should a fair disciplinary hearing invitation include?",
+];
 
 export default function Chat({ onRun }) {
   const [messages, setMessages] = useState([]);
@@ -10,6 +18,9 @@ export default function Chat({ onRun }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const mapRef = useRef({}); // keeps PII tokens consistent across the whole conversation
+  const endRef = useRef(null);
+
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }); }, [messages, loading]);
 
   async function send(e) {
     e.preventDefault();
@@ -29,30 +40,59 @@ export default function Chat({ onRun }) {
   }
 
   return (
-    <div className="mx-auto flex h-[70vh] max-w-3xl flex-col rounded-lg border border-slate-200 bg-white">
-      <div className="flex-1 space-y-3 overflow-y-auto p-4" aria-live="polite">
+    <div className="hud panel mx-auto flex h-[72vh] min-h-[32rem] max-w-3xl flex-col overflow-hidden">
+      <div className="flex items-center gap-3 border-b border-edge px-5 py-3">
+        <span className="grid h-9 w-9 place-items-center rounded-lg bg-signal/10 text-signal ring-1 ring-signal/30"><Icon name="chat" /></span>
+        <div className="leading-tight">
+          <p className="font-display font-semibold">HR Desk</p>
+          <p className="flex items-center gap-1.5 font-mono text-[11px] text-mute"><span className="h-1.5 w-1.5 rounded-full bg-volt" /> online</p>
+        </div>
+        <button type="button" className="btn-ghost ml-auto" onClick={() => { setMessages([]); mapRef.current = {}; }}>Clear chat</button>
+      </div>
+
+      <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5" aria-live="polite">
         {messages.length === 0 && (
-          <div className="text-sm text-slate-600">
-            <p className="mb-2 font-medium text-ink">Ask HR Desk anything about your workday.</p>
-            <p>Try: "How should I structure a probation review meeting?" or "Rewrite this to sound more neutral: ..."</p>
+          <div className="animate-rise">
+            <p className="font-display text-xl font-semibold">Ask HR Desk anything about your workday.</p>
+            <p className="mt-1 text-sm text-mute">Pick a starter or type your own.</p>
+            <div className="mt-4 flex flex-col gap-2">
+              {STARTERS.map((s) => (
+                <button key={s} type="button" onClick={() => setText(s)}
+                  className="rounded-lg border border-edge bg-raised px-3 py-2 text-left text-sm transition hover:border-signal/60 hover:text-signal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal">
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
         )}
         {messages.map((m, n) => (
-          <div key={n} className={`max-w-[85%] whitespace-pre-wrap rounded-lg px-3 py-2 text-sm ${m.role === "user" ? "ml-auto bg-ink text-white" : "bg-mist"}`}>{m.content}</div>
+          <div key={n} className={`flex animate-rise ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+              m.role === "user"
+                ? "rounded-br-sm bg-signal/15 text-fg ring-1 ring-signal/40"
+                : "rounded-bl-sm border border-edge bg-raised"}`}>
+              {m.content}
+            </div>
+          </div>
         ))}
-        {loading && <p className="text-sm text-slate-600">HR Desk is typing...</p>}
-        {error && <p role="alert" className="text-sm text-red-700">{error} Send your message again.</p>}
+        {loading && (
+          <div className="flex justify-start" role="status" aria-label="HR Desk is typing">
+            <div className="flex gap-1.5 rounded-2xl rounded-bl-sm border border-edge bg-raised px-4 py-3">
+              {[0, 1, 2].map((i) => <span key={i} className="h-1.5 w-1.5 animate-blink rounded-full bg-signal" style={{ animationDelay: `${i * 0.2}s` }} />)}
+            </div>
+          </div>
+        )}
+        {error && <p role="alert" className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300">{error} Send your message again.</p>}
+        <div ref={endRef} />
       </div>
-      <form onSubmit={send} className="border-t border-slate-200 p-3">
+
+      <form onSubmit={send} className="space-y-3 border-t border-edge bg-void/40 p-4">
         <div className="flex gap-2">
           <input className="field" value={text} onChange={(e) => setText(e.target.value)} placeholder="Type your question" aria-label="Message" />
-          <button className="btn" disabled={loading || !text.trim()}>Send</button>
+          <button className="btn px-4" disabled={loading || !text.trim()} aria-label="Send"><Icon name="send" className="h-4 w-4" /> <span className="hidden sm:inline">Send</span></button>
         </div>
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600">
-          <label className="flex items-center gap-2"><input type="checkbox" checked={safe} onChange={(e) => setSafe(e.target.checked)} /> Mask personal details</label>
-          <button type="button" className="underline" onClick={() => { setMessages([]); mapRef.current = {}; }}>Clear chat</button>
-        </div>
-        <p className="mt-1 text-xs text-flag">{DISCLAIMER}</p>
+        <Toggle checked={safe} onChange={setSafe} label="Mask personal details" tag="privacy" />
+        <p className="text-[11px] leading-relaxed text-flag/80">{DISCLAIMER}</p>
       </form>
     </div>
   );
