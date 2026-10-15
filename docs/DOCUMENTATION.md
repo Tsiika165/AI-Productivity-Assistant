@@ -1,6 +1,6 @@
 # HR Desk Assistant: Documentation
 
-**Name:** Tsietsi Mofokeng | **Programme:** CAPACITI AI Skills Accelerator (ASA 23) | **Live demo:** [Vercel link] | **Repo:** [GitHub link]
+**Name:** Tsietsi Mofokeng | **Programme:** CAPACITI AI Skills Accelerator (ASA 23) | **Live demo:** https://ai-productivity-assistant-chi.vercel.app/ | **Repo:** https://github.com/Tsiika165/AI-Productivity-Assistant
 
 ## 1. Problem statement
 HR administrators spend much of their week on repetitive writing and organising: interview and onboarding emails, meeting minutes, task juggling and background research. These tasks involve personal data, so pasting them into a public chatbot is risky under POPIA. HR Desk Assistant automates these tasks while protecting personal data and keeping a human in control.
